@@ -1,3 +1,21 @@
+# Project ignore
+.*.swp
+*.o
+*.obj
+*.exe
+a.out
+*.d
+*.txt
+*.dat
+*.fits
+*.csv
+*.CSV
+*.ini
+*.INI
+*.cfg
+*.CFG
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
