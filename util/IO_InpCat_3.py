@@ -137,11 +137,10 @@ def Inp_cat_output(OBJID=None,RADEG=None,DECDEG=None,MAG0=None,fn='CATALOG.csv',
 		ind_names[17]=1
 		output_cat.setdefault('OBJCATALOG',OBJCATALOG)
 
-	n1 = len(OBJID)
-	n2 = len(RADEG)
-	n3 = len(DECDEG)
-	n4 = len(MAG0)
-	if (n1==n2) and (n2==n3) and (n3==n4):
+	n1 = len(RADEG)
+	n2 = len(DECDEG)
+	n3 = len(MAG0)
+	if (n1==n2) and (n2==n3):
 		csvfile = open(fn,"w")
 		writer = csv.writer(csvfile)
 		outnames = output_cat.keys()
@@ -158,7 +157,7 @@ def Inp_cat_output(OBJID=None,RADEG=None,DECDEG=None,MAG0=None,fn='CATALOG.csv',
 		csvfile.close()
 	else:
 		print ("The numbers of the columns are not consistent!! Please have a check!!")
-		print (n1,n2,n3,n4)
+		print (n1,n2,n3)
 	print ('=============================================')
 	print (' ')
 	print (' ')
