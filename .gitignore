@@ -5,15 +5,15 @@
 *.exe
 a.out
 *.d
-*.txt
+#*.txt
 *.dat
 *.fits
-*.csv
-*.CSV
-*.ini
-*.INI
-*.cfg
-*.CFG
+#*.csv
+#*.CSV
+#*.ini
+#*.INI
+#*.cfg
+#*.CFG
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
