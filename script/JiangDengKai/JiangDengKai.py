@@ -31,7 +31,7 @@ ra = t1['ra']
 dec = t1['dec']
 
 # center of the region, chosen to be the position of a bright star from Tycho-2 catalogue
-center = np.array([89.14070, 28.94226])
+center = np.array([89.14070, 28.94226]) # HIP28117
 cen_ra = center[0]
 cen_dec = center[1]
 
