@@ -76,50 +76,32 @@ while y < 90:
 #px1, py1 = aitoff_projection(np.deg2rad(gp_ra), np.deg2rad(gp_dec))
 #plt.scatter(px1, py1, s=2, c='b', marker='*')
 
-t = np.genfromtxt('../script/center.txt',dtype=('S19', float, float, 'S19'), names=True)
-c1 = t['ra']
-c2 = t['dec']
-name1 = t['name']
-name2 = np.array(list(set(name1)))
-
-colors = cm.rainbow(np.linspace(0, 1, len(name2)))
-
-#for nx in name2:
-for j in range(len(name2)):
-    nx = name2[j]
-    idx = (name1 == nx)
-    cen_ra  = c1[idx]
-    cen_dec = c2[idx]
-    if (nx == 'JiangDengKai'):
-        k = j
-        continue
-    for i in range(len(cen_ra)):
-        x0, y0 = footprint(cen_ra[i], cen_dec[i])
-        x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-        if i == 0:
-            plt.plot(x, y, c=colors[j], ls='-', label=nx)
-        else:
-            plt.plot(x, y, c=colors[j], ls='-')
-
-nx = name2[k]
-idx = (name1 == nx)
-cen_ra  = c1[idx]
-cen_dec = c2[idx]
+center = np.array([19.359, 57.632])
+cen_ra = center[0]
+cen_dec = center[1]
 x0, y0 = footprint(cen_ra, cen_dec)
 x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-plt.plot(x, y, c=colors[k], ls='-', label=nx)
+plt.plot(x, y, 'r-', label='ChenLi')
 
-#plt.plot(x, y, 'r-', label='ChenLi')
-#
-#for i in range(len(t)):
-#    cen_ra = ca[i]
-#    cen_dec = cd[i]
-#    x0, y0 = footprint(cen_ra, cen_dec)
-#    x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-#    if i == 0:
-#        plt.plot(x, y, 'b-', label='T-Taurus')
-#    else:
-#        plt.plot(x, y, 'b-')
+t = np.genfromtxt('../script/T_Taurus/calibrate_stars.txt', dtype=None, names=True)
+ca = t['ra']
+cd = t['dec']
+for i in range(len(t)):
+    cen_ra = ca[i]
+    cen_dec = cd[i]
+    x0, y0 = footprint(cen_ra, cen_dec)
+    x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
+    if i == 0:
+        plt.plot(x, y, 'b-', label='T-Taurus')
+    else:
+        plt.plot(x, y, 'b-')
+
+center = np.array([89.14070, 28.94226])
+cen_ra = center[0]
+cen_dec = center[1]
+x0, y0 = footprint(cen_ra, cen_dec)
+x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
+plt.plot(x, y, 'g-', label='JiangDengKai')
 
 plt.legend(loc='best', fontsize=8, fancybox=True, framealpha=0.5)
 
