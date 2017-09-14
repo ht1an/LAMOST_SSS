@@ -1,25 +1,29 @@
-def footprint(cen_ra, cen_dec, n=1000):
+# old footprint script
+def footprint(lon1, lat1, n=1000, r=2.5, u=1):
+    # u = 0, in radian, otherwise in degree
     import numpy as np
-    if cen_dec < -85 or cen_dec > 85:
-        print("primary version")
-        print("cen_dec should be in range [-85.0, 85.0]")
+    if u != 0:
+        r = np.deg2rad(r)
+        x, y = footprint(np.deg2rad(lon1), np.deg2rad(lat1), n, r, u=0)
+        return np.rad2deg(x), np.rad2deg(y)
+    if lat1 > np.deg2rad(85) or lat1 < np.deg2rad(-85):
+        print('too high to calculate')
         return
-    r = 2.5
-    d1 = cen_dec - r
-    d2 = cen_dec + r
-    d = np.linspace(d1, d2, n)
-    cos_r = np.cos(np.deg2rad(r))
-    cos_d = np.cos(np.deg2rad(d))
-    cos_d0 = np.cos(np.deg2rad(cen_dec))
-    sin_d = np.sin(np.deg2rad(d))
-    sin_d0 = np.sin(np.deg2rad(cen_dec))
-    cos_dra = (cos_r - sin_d * sin_d0) / (cos_d * cos_d0)
-    da = np.arccos(cos_dra)
-    da = np.rad2deg(da)
-    a1 = cen_ra - da
-    a2 = cen_ra + da
-    x = np.hstack([a1, a2[::-1][1:]])
-    y1 = d
-    y2 = d[::-1][1:]
-    y = np.hstack([y1, y2])
+    lat2_l = lat1 - r
+    lat2_u = lat1 + r
+    lat2 = np.linspace(lat2_l, lat2_u, n)
+    delta_lat_2 = 0.5 * np.linspace(-r, r, n)
+    sin_dlat_2 = np.sin(delta_lat_2)
+    cos_lat1 = np.cos(lat1)
+    cos_lat2 = np.cos(lat2)
+    sin_r_2 = np.sin(0.5*r)
+    #sin_dlon_2 = (sin_r_2 * sin_r_2 - sin_dlat_2 * sin_dlat_2) / (cos_lat1 * cos_lat2)
+    sin_dlon_2 = (sin_r_2 + sin_dlat_2) * (sin_r_2 - sin_dlat_2) / (cos_lat1 * cos_lat2)
+    dlon = 2.0 * np.arcsin(np.sqrt(sin_dlon_2))
+    lon2_l = lon1 - dlon
+    lon2_u = lon1 + dlon
+    x = np.hstack([lon2_l, lon2_u[::-1][1:]])
+    y = np.hstack([lat2, lat2[::-1][1:]])
+    x = np.where(x < 0.0, x + 2*np.pi, x)
+    x = np.where(x > 2*np.pi, x - 2*np.pi, x)
     return x, y
