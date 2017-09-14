@@ -11,19 +11,12 @@ from astropy.io import fits
 import gcirc
 
 # ----------------------------------------------------------------
-# read the central coordinates of the fibers 
-#dpath_SSS = "./Test_SeptOct/SSS/"
-#dpath_Inp = "./Test_SeptOct/Input_source/"
-#dpath_Outp = "./"
-#fn_Fib_Cat = "fiberdata.20140115.txt"
-#fn_gaia = dpath_Inp + "gaia/base/base.fits"
-#fn_out = dpath_Outp + "ASS2SSS1.TXT"
-#fn_inp = dpath_Outp + "CATALOG.csv"
-finput = '../../../Test_SeptOct/Input_source/JiangDengKai/region_plane_new.fits'
-fgaia = '../../../../catalogue/gaia/base/base.fits'
+# input catalog
+finput = '../../../lamost_mrs/Test_SeptOct/Input_source/JiangDengKai/region_plane_new.fits'
+fgaia = '../../../catalogue/gaia/base/base.fits'
 
 # --------------------------------------------------
-# read catalog from input catalog 
+# read input catalog 
 h1 = fits.open(finput)
 t1 = h1[1].data
 
@@ -91,54 +84,60 @@ elif ra_u > 360.0: # 0.0 < ra_l < 360.0
 else:
     id1 = (dec >= dec_l) * (dec <= dec_u) * (ra > ra_l) * (ra < ra_u)
 
+ra_sub1  = ra[id1]
+dec_sub1 = dec[id1]
+
+# accurate selection using great circle distance / sky distance
+d = gcirc.gcirc(ra_sub1, dec_sub1, cen_ra, cen_dec, u=1)
+d = np.rad2deg(d)
+id2 = (d <= max_radius)
+
+t2_sub = t2[id1][id2]
+
 # remove duplicate source (if necessary)
-t2_sub = t2[id1]
+# using source_id
 sid1 = t1_sub['source_id']
 sid2 = t2_sub['source_id']
 id2 = ~np.in1d(sid2, sid1)
 t2_sub = t2_sub[id2]
 
-ra_sub1 = t2_sub['ra']
-dec_sub1 = t2_sub['dec']
-
-# accurate selection using great circle distance / sky distance
-d = gcirc.gcirc(ra_sub1, dec_sub1, cen_ra, cen_dec, u=1)
-d = np.rad2deg(d)
-id3 = (d <= max_radius)
-
-t2_sub = t2_sub[id3]
-
 # selection strategy: make g-mag close to uniform distributions
 g1 = t1_sub['phot_g_mean_mag']
 g2 = t2_sub['phot_g_mean_mag']
-N0 = 12000
-#if (len(t1_sub) + len(t2_sub) < N0):
-    # no need to further selection
-#else:
-    # make g-mag selection
+idx = (g1 >= 10.0) * (g1 <= 15.0)
+g1 = g1[idx]
+t1_sub = t1_sub[idx]
+idx = (g2 >= 10.0) * (g2 <= 15.0)
+g2 = g2[idx]
+t2_sub = t2_sub[idx]
+print('star number: ',len(t1_sub), len(t2_sub))
 
-num_bin = 5 # 10.0 - 15.0
-bins = np.linspace(10.0, 15.0, num_bin+1)
-bins[0] = 0.0
-h1, b1 = np.histogram(g1, bins)
-num_star = np.floor(N0 / num_bin)
+# selection strategy: make g-mag close to uniform distributions
+N0 = 10000
 
-h2 = num_star - h1
-#t = np.array([])
-id5 = np.array([], dtype=int)
-for i in range(num_bin):
-    if (h2[i] > 0):
-        idx = (g2 >= bins[i]) * (g2 < bins[i+1])
-        n = np.sum(idx)
-        if (n <= h2[i]):
-            id4 = np.nonzero(idx)[0]
-        else:
-            id3 = np.nonzero(idx)[0]
-            id4 = np.random.permutation(id3)[:int(h2[i])]
-        id5 = np.hstack([id5, id4])
-#        t = np.hstack([t, t2_sub[id4]])
+if (len(t1_sub) + len(t2_sub) > N0):
+    print('enough stars, make g-mag selection')
+    # enough stars, make g-mag selection
+    num_bin = 5 # 10.0 - 15.0
+    bins = np.linspace(10.0, 15.0, num_bin+1)
+    #bins[0] = 0.0
+    h1, b1 = np.histogram(g1, bins)
+    num_star = np.floor(N0 / num_bin)
 
-t = t2_sub[id5]
+    h2 = num_star - h1
+    id5 = np.array([], dtype=int)
+    for i in range(num_bin):
+        if (h2[i] > 0):
+            idx = (g2 >= bins[i]) * (g2 < bins[i+1])
+            n = np.sum(idx)
+            if (n <= h2[i]):
+                id4 = np.nonzero(idx)[0]
+            else:
+                id3 = np.nonzero(idx)[0]
+                id4 = np.random.permutation(id3)[:int(h2[i])]
+            id5 = np.hstack([id5, id4])
+    t2_sub = t2_sub[id5]
+    print('after selection, t2: ', len(t2_sub))
 
 ra1 = t1_sub['ra']
 dec1 = t1_sub['dec']
@@ -152,11 +151,11 @@ pri1[idx] = 2
 idx = (pri1 > 60)
 pri1[idx] = 3
 
-ra2 = t['ra']
-dec2 = t['dec']
-sid2 = t['source_id']
-g2 = t['phot_g_mean_mag']
-pri2 = np.array([4]*len(t))
+ra2 = t2_sub['ra']
+dec2 = t2_sub['dec']
+sid2 = t2_sub['source_id']
+g2 = t2_sub['phot_g_mean_mag']
+pri2 = np.array([10]*len(t2_sub))
 
 source_id = np.hstack([sid1, sid2])
 ra = np.hstack([ra1, ra2])
