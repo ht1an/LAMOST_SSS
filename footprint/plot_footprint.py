@@ -63,6 +63,10 @@ while b < 90:
 gp_ra = 192.859508
 gp_dec = 27.128336
 px1, py1 = aitoff_projection(np.deg2rad(gp_ra), np.deg2rad(gp_dec))
+ax.scatter(px1, py1, s=4, c='b', marker='o', alpha=0.5)
+
+gc_ra, gc_dec = galactic.galactic2(0, 0)
+px1, py1 = aitoff_projection(np.deg2rad(gc_ra), np.deg2rad(gc_dec))
 ax.scatter(px1, py1, s=4, c='b', marker='*', alpha=0.5)
 
 ax.text(-12,  -3, r'0$^{\circ}$',   fontdict={'fontsize':8})
@@ -75,7 +79,8 @@ ax.text(224,  -6, r'240$^{\circ}$', fontdict={'fontsize':8})
 ax.text(285,  -6, r'300$^{\circ}$', fontdict={'fontsize':8})
 ax.text( 7,  -51, r'-30$^{\circ}$', fontdict={'fontsize':8})
 ax.text( 72, -83, r'-60$^{\circ}$', fontdict={'fontsize':8})
-ax.text(195,  25, r'NGP', fontdict={'fontsize':8}, color='red', alpha=0.3)
+ax.text(195,  25, r'NGP', fontdict={'fontsize':8}, color='r', alpha=0.5)
+ax.text(262, -41, r'GC',  fontdict={'fontsize':8}, color='r', alpha=0.5)
 
 t = np.genfromtxt('../script/center.txt',dtype=('S19', float, float, 'S19'), names=True)
 c1 = t['ra']
@@ -114,3 +119,4 @@ ax.legend(loc=1, bbox_to_anchor=(1.06, 1.06), fontsize=8, fancybox=True, frameal
 ax.set_title('LAMOST-MRS test footprint')
 
 plt.savefig('fp.pdf', format='pdf')
+plt.savefig('fp.png', format='png', dpi=200)
