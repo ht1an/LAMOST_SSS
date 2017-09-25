@@ -1,3 +1,4 @@
+# read target files (e.g. 'SKY101.txt')
 def read_target(filename):
     import numpy as np
 
