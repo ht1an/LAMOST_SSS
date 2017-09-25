@@ -13,12 +13,17 @@ import gcirc
 # ----------------------------------------------------------------
 # input catalog
 finput = '../../../lamost_mrs/Test_SeptOct/Input_source/JiangDengKai/region_plane_new.fits'
+finput_supplement = '../../../lamost_mrs/Test_SeptOct/Input_source/JiangDengKai/lamost_eb_sb_gaia.fits'
 fgaia = '../../../catalogue/gaia/base/base.fits'
 
 # --------------------------------------------------
 # read input catalog 
 h1 = fits.open(finput)
 t1 = h1[1].data
+
+# add 16 new sources, to be highest priority, 5 of them exsit in old input catalog
+h1_supplement = fits.open(finput_supplement)
+t1_supplement = h1_supplement[1].data
 
 ra = t1['ra']
 dec = t1['dec']
@@ -69,6 +74,41 @@ id2 = (d <= max_radius)
 
 t1_sub = t1[id1][id2]
 
+g1 = t1_sub['phot_g_mean_mag']
+idx = (g1 >= 10.0) * (g1 <= 15.0)
+t1_sub = t1_sub[idx]
+
+# dealing with supplementary sources:
+sid1 = t1_sub['source_id']
+sid1_supplement = t1_supplement['gaia_id']
+#sid1_fmt = np.array(sid1, dtype='S19')
+sid1_supplement_fmt = np.array([int(x[1:]) for x in sid1_supplement])
+idx = np.in1d(sid1, sid1_supplement_fmt)
+t1_sub = t1_sub[~idx]
+
+pri1 = t1_sub['priority']
+idx = (pri1 <= 30)
+pri1[idx] = 2
+idx = (pri1 > 30) * (pri1 <= 60)
+pri1[idx] = 3
+idx = (pri1 > 60)
+pri1[idx] = 4
+
+pri1_s = t1_supplement['pri'] # = 1
+pri1 = np.hstack([pri1_s, pri1])
+sid1 = t1_sub['source_id']
+sid1 = np.hstack([sid1_supplement_fmt, sid1])
+
+ra1 = t1_sub['ra']
+dec1 = t1_sub['dec']
+g1 = t1_sub['phot_g_mean_mag']
+ra1_s = t1_supplement['ra_ep2000']
+dec1_s = t1_supplement['dec_ep2000']
+g1_s = t1_supplement['phot_g_mean_mag']
+ra1 = np.hstack([ra1_s, ra1])
+dec1 = np.hstack([dec1_s, dec1])
+g1 = np.hstack([g1_s, g1])
+
 # --------------------------------------------------
 # read catalog from gaia
 h2 = fits.open(fgaia)
@@ -96,21 +136,21 @@ t2_sub = t2[id1][id2]
 
 # remove duplicate source (if necessary)
 # using source_id
-sid1 = t1_sub['source_id']
+#sid1 = t1_sub['source_id']
 sid2 = t2_sub['source_id']
 id2 = ~np.in1d(sid2, sid1)
 t2_sub = t2_sub[id2]
 
 # selection strategy: make g-mag close to uniform distributions
-g1 = t1_sub['phot_g_mean_mag']
+#g1 = t1_sub['phot_g_mean_mag']
 g2 = t2_sub['phot_g_mean_mag']
-idx = (g1 >= 10.0) * (g1 <= 15.0)
-g1 = g1[idx]
-t1_sub = t1_sub[idx]
+#idx = (g1 >= 10.0) * (g1 <= 15.0)
+#g1 = g1[idx]
+#t1_sub = t1_sub[idx]
 idx = (g2 >= 10.0) * (g2 <= 15.0)
 g2 = g2[idx]
 t2_sub = t2_sub[idx]
-print('star number: ',len(t1_sub), len(t2_sub))
+print('star number: ',len(sid1), len(t2_sub))
 
 # selection strategy: make g-mag close to uniform distributions
 N0 = 10000
@@ -120,7 +160,7 @@ if (len(t1_sub) + len(t2_sub) > N0):
     # enough stars, make g-mag selection
     num_bin = 5 # 10.0 - 15.0
     bins = np.linspace(10.0, 15.0, num_bin+1)
-    #bins[0] = 0.0
+    bins[0] = 0.0
     h1, b1 = np.histogram(g1, bins)
     num_star = np.floor(N0 / num_bin)
 
@@ -139,17 +179,29 @@ if (len(t1_sub) + len(t2_sub) > N0):
     t2_sub = t2_sub[id5]
     print('after selection, t2: ', len(t2_sub))
 
-ra1 = t1_sub['ra']
-dec1 = t1_sub['dec']
-sid1 = t1_sub['source_id']
-g1 = t1_sub['phot_g_mean_mag']
-pri1 = t1_sub['priority']
-idx = (pri1 <= 30)
-pri1[idx] = 1
-idx = (pri1 > 30) * (pri1 <= 60)
-pri1[idx] = 2
-idx = (pri1 > 60)
-pri1[idx] = 3
+#ra1 = t1_sub['ra']
+#dec1 = t1_sub['dec']
+#sid1 = t1_sub['source_id']
+#g1 = t1_sub['phot_g_mean_mag']
+#pri1 = t1_sub['priority']
+#idx = (pri1 <= 30)
+#pri1[idx] = 2
+#idx = (pri1 > 30) * (pri1 <= 60)
+#pri1[idx] = 3
+#idx = (pri1 > 60)
+#pri1[idx] = 4
+#
+#ra1_s = t1_supplement['ra_ep2000']
+#dec1_s = t1_supplement['dec_ep2000']
+#sid1_s = sid1_supplement_fmt
+#g1_s = t1_supplement['phot_g_mean_mag']
+#pri1_s = t1_supplement['pri']
+#
+#sid1 = np.hstack([sid1_s, sid1])
+#ra1 = np.hstack([ra1_s, ra1])
+#dec1 = np.hstack([dec1_s, dec1])
+#g1 = np.hstack([g1_s, g1])
+#pri1 = np.hstack([pri1_s, pri1])
 
 ra2 = t2_sub['ra']
 dec2 = t2_sub['dec']
