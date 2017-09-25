@@ -67,7 +67,7 @@ dec_sub1 = dec[id1]
 
 # accurate selection using great circle distance / sky distance
 d = gcirc.gcirc(ra_sub1, dec_sub1, cen_ra, cen_dec, u=1)
-d = np.rad2deg(d)
+#d = np.rad2deg(d)
 id2 = (d <= max_radius)
 
 t2_sub = t2[id1][id2]

@@ -1,12 +1,13 @@
 # Calculate the Great-circle distance
-# returned "dist" in radian
+# returned "dist" in degree (u!=0, default) or radian (u==0)
 # see:
 # https://en.wikipedia.org/wiki/Great-circle_distance
-def gcirc(lon1, lat1, lon2, lat2, u=0):
-    # u = 0, in radian, otherwise in degree
+def gcirc(lon1, lat1, lon2, lat2, u=1):
+    # u == 0, in radian, otherwise in degree
     import numpy as np
     if u != 0:
-        return gcirc(np.deg2rad(lon1), np.deg2rad(lat1), np.deg2rad(lon2), np.deg2rad(lat2), 0)
+        dist = gcirc(np.deg2rad(lon1), np.deg2rad(lat1), np.deg2rad(lon2), np.deg2rad(lat2), 0)
+        return np.rad2deg(dist)
 
     delta_lon_2 = 0.5 * (lon1 - lon2)
     delta_lat_2 = 0.5 * (lat1 - lat2)
