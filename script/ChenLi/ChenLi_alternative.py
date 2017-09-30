@@ -10,7 +10,7 @@ import IO_InpCat as II
 
 # ----------------------------------------------------------------
 # read the central coordinates of the fibers 
-finput = '../../../lamost_mrs/Test_SeptOct/Input_source/ChenLi/input_9-11_oc_prior5.fits'
+finput = '../../../lamost_mrs/Test_SeptOct/Input_source/ChenLi/input2(alternative)_9-11_oc_prior2.fits'
 
 # --------------------------------------------------
 # read catalog from input catalog 
@@ -19,12 +19,11 @@ t1 = h1[1].data
 
 # all sources within the circle of radius = max_radius
 # the following check skipped
-'''
 ra = t1['RAJ2000']
 dec = t1['DEJ2000']
 
 # center of the region, chosen to be the position of a bright star from Tycho-2 catalogue
-center = np.array([19.359, 57.632]) # HIP6027
+center = np.array([19.557, 57.803]) # HIP6093
 cen_ra = center[0]
 cen_dec = center[1]
 
@@ -68,15 +67,14 @@ d = gcirc.gcirc(ra_sub1, dec_sub1, cen_ra, cen_dec, u=1)
 id2 = (d <= max_radius)
 
 t1_sub = t1[id1][id2]
-'''
 
 t1_sub = t1
 g1 = t1_sub['GMAG']
 
-id1 = (g1 >= 10.0) * (g1 <= 15.0)
+id1 = (g1 >= 9.0) * (g1 <= 14.0)
 t1_sub = t1_sub[id1]
 
-source_id = t1_sub['SrCIDgaia']
+source_id = t1_sub['source_id']
 ra = t1_sub['RAJ2000']
 dec = t1_sub['DEJ2000']
 g_mag = t1_sub['GMAG']
