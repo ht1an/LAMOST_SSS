@@ -82,11 +82,12 @@ ax.text( 72, -83, r'-60$^{\circ}$', fontdict={'fontsize':8})
 ax.text(195,  25, r'NGP', fontdict={'fontsize':8}, color='r', alpha=0.5)
 ax.text(262, -41, r'GC',  fontdict={'fontsize':8}, color='r', alpha=0.5)
 
-t = np.genfromtxt('../script/center.txt',dtype=('S19', float, float, 'S19'), names=True)
+t = np.genfromtxt('plate.txt',dtype=('S20', float, float, 'S20', int), names=True)
 c1 = t['ra']
 c2 = t['dec']
 name1 = t['name']
 name2 = np.array(list(set(name1)))
+obs_state = t['obs_state']
 
 colors = cm.rainbow(np.linspace(0, 1, len(name2)))
 
@@ -96,16 +97,25 @@ for j in range(len(name2)):
     idx = (name1 == nx)
     cen_ra  = c1[idx]
     cen_dec = c2[idx]
+    obs = obs_state[idx]
     if (nx == 'JiangDengKai'):
         k = j
         continue
     for i in range(len(cen_ra)):
         x0, y0 = footprint(cen_ra[i], cen_dec[i])
         x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-        if i == 0:
-            ax.plot(x, y, c=colors[j], ls='-', label=nx)
+        if obs[i] == 0:
+            linestyle = ':'
+            linewidth = 0.5
+            alpha = 0.5
         else:
-            ax.plot(x, y, c=colors[j], ls='-')
+            linestyle = '-'
+            linewidth = 1.5
+            alpha = 1
+        if i == 0:
+            ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha, label=nx)
+        else:
+            ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
 
 nx = name2[k]
 idx = (name1 == nx)
@@ -113,7 +123,15 @@ cen_ra  = c1[idx]
 cen_dec = c2[idx]
 x0, y0 = footprint(cen_ra, cen_dec)
 x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-ax.plot(x, y, c=colors[k], ls='-', label=nx)
+if obs_state[k] == 0:
+    linestyle = ':'
+    linewidth = 0.5
+    alpha = 0.5
+else:
+    linestyle = '-'
+    linewidth = 1.5
+    alpha = 1
+ax.plot(x, y, c=colors[k], ls='-', lw=linewidth, alpha=alpha, label=nx)
 ax.legend(loc=1, bbox_to_anchor=(1.06, 1.06), fontsize=8, fancybox=True, framealpha=0.5)
 
 ax.set_title('LAMOST-MRS test footprint')
