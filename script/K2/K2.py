@@ -15,10 +15,10 @@ import IO_InpCat as II
 #finput = 'K2_04_plate.csv'
 #finput = 'K2_05_plate.csv'
 #finput = 'K2_06_plate.csv'
-#finput = 'K2_08_plate.csv'
+finput = 'K2_08_plate.csv'
 #finput = 'K2_13_plate.csv'
 #finput = 'K2_14_plate.csv'
-finput = 'K2_16_plate.csv'
+#finput = 'K2_16_plate.csv'
 fgaia  = '../../../catalogue/gaia/base/base.fits'
 #fgaia  = 'gaia2.fits'
 
@@ -37,9 +37,10 @@ dec = t1['DECDEG']
 #center = np.array([134.57621, 18.30828]) # plate05, HIP44056
 #center = np.array([206.80585, -9.70945]) # plate06, HIP67271
 #center = np.array([ 14.67684,  4.20579]) # plate08, HIP4582
+center = np.array([ 16.21933,  5.65626]) # plate08, HIP5074
 #center = np.array([ 74.02765, 22.57655]) # plate13, HIP22935
 #center = np.array([158.75899,  8.65043]) # plate13, HIP51802
-center = np.array([134.39545, 16.23365]) # plate13, HIP44000
+#center = np.array([134.39545, 16.23365]) # plate13, HIP44000
 cen_ra = center[0]
 cen_dec = center[1]
 
