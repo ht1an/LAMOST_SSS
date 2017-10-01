@@ -82,7 +82,7 @@ ax.text( 72, -83, r'-60$^{\circ}$', fontdict={'fontsize':8})
 ax.text(195,  25, r'NGP', fontdict={'fontsize':8}, color='r', alpha=0.5)
 ax.text(262, -41, r'GC',  fontdict={'fontsize':8}, color='r', alpha=0.5)
 
-t = np.genfromtxt('plate.txt',dtype=('S20', float, float, 'S20', int), names=True)
+t = np.genfromtxt('plate.txt',dtype=('S20', float, float, 'S20', int, 'S40'), names=True)
 c1 = t['ra']
 c2 = t['dec']
 name1 = t['name']
