@@ -37,7 +37,12 @@ dec = t1['DECDEG']
 #center = np.array([134.57621, 18.30828]) # plate05, HIP44056
 #center = np.array([206.80585, -9.70945]) # plate06, HIP67271
 #center = np.array([ 14.67684,  4.20579]) # plate08, HIP4582
-center = np.array([ 16.21933,  5.65626]) # plate08, HIP5074
+#center = np.array([ 16.21933,  5.65626]) # plate08, HIP5074
+
+#center = np.array([ 14.58106,  6.84431]) # plate08, HIP4559
+#center = np.array([ 16.45516,  4.90837]) # plate08, HIP5141
+center = np.array([ 18.12769,  2.47157]) # plate08, HIP5646
+
 #center = np.array([ 74.02765, 22.57655]) # plate13, HIP22935
 #center = np.array([158.75899,  8.65043]) # plate13, HIP51802
 #center = np.array([134.39545, 16.23365]) # plate13, HIP44000
@@ -129,10 +134,10 @@ t2_sub = t2_sub[id3]
 # select g-mag range [10, 15]
 g1 = t1_sub['MAG0']
 g2 = t2_sub['phot_g_mean_mag']
-idx = (g1 >= 10.0) * (g1 <= 15.0)
+idx = (g1 >= 9.0) * (g1 <= 13.5)
 g1 = g1[idx]
 t1_sub = t1_sub[idx]
-idx = (g2 >= 10.0) * (g2 <= 15.0)
+idx = (g2 >= 9.0) * (g2 <= 13.5)
 g2 = g2[idx]
 t2_sub = t2_sub[idx]
 print('star number: ',len(t1_sub), len(t2_sub))

@@ -73,7 +73,7 @@ t1_sub = t1[id1][id2]
 t1_sub = t1
 g1 = t1_sub['GMAG']
 
-id1 = (g1 >= 10.0) * (g1 <= 15.0)
+id1 = (g1 >= 9.0) * (g1 <= 14.0)
 t1_sub = t1_sub[id1]
 
 source_id = t1_sub['SrCIDgaia']
