@@ -11,12 +11,12 @@ import read_target
 # input catalogue
 finput = '../../../lamost_mrs/Test_SeptOct/Input_source/ChenLi/input_9-11_oc_prior5.fits'
 # observed catalogue
-directory = './f1/'
+directory = './b1/'
 fb0 = directory + 'CATALOG.csv'
 fb1 = directory + 'SKY101.TXT'
 fb2 = directory + 'SKY102.TXT'
-fb3 = directory + 'SKY103.TXT'
-fb4 = directory + 'SKY104.TXT'
+#fb3 = directory + 'SKY103.TXT'
+#fb4 = directory + 'SKY104.TXT'
 
 # --------------------------------------------------
 # read input catalog 
@@ -34,28 +34,29 @@ xb0 = np.genfromtxt(fb0, delimiter=',', dtype=dt1, names=True)
 
 xb1 = read_target.read_target(fb1)
 xb2 = read_target.read_target(fb2)
-xb3 = read_target.read_target(fb3)
-xb4 = read_target.read_target(fb4)
+#xb3 = read_target.read_target(fb3)
+#xb4 = read_target.read_target(fb4)
 
 sb0 = xb0['OBJID']
 sb1 = xb1['OBJID']
 sb2 = xb2['OBJID']
-sb3 = xb3['OBJID']
-sb4 = xb4['OBJID']
+#sb3 = xb3['OBJID']
+#sb4 = xb4['OBJID']
 
 sid0_sub = sid0
 id1 = np.in1d(sid0_sub, sb1)
 sid0_sub = sid0_sub[~id1]
 id2 = np.in1d(sid0_sub, sb2)
 sid0_sub = sid0_sub[~id2]
-id3 = np.in1d(sid0_sub, sb3)
-sid0_sub = sid0_sub[~id3]
-id4 = np.in1d(sid0_sub, sb4)
+#id3 = np.in1d(sid0_sub, sb3)
+#sid0_sub = sid0_sub[~id3]
+#id4 = np.in1d(sid0_sub, sb4)
 
-t0_sub = t0[~id1][~id2][~id3][~id4]
+#t0_sub = t0[~id1][~id2][~id3][~id4]
+t0_sub = t0[~id1][~id2]
 
 g = t0_sub['GMAG']
-idx = (g >= 9.0) * (g <= 14.0)
+idx = (g >= 10.0) * (g <= 15.0)
 t0_sub = t0_sub[idx]
 
 source_id = t0_sub['SrCIDgaia']
