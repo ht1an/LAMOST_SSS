@@ -88,6 +88,17 @@ c2 = t['dec']
 name1 = t['name']
 name2 = np.array(list(set(name1)))
 obs_state = t['obs_state']
+obs_date = t['obs_date']
+
+# check obs_date and obs_state consistent
+for i in range(len(t)):
+    if obs_date[i] > '0':
+        n_date = sum(c == ',' for c in obs_date[i]) + 1
+    else:
+        n_date = 0
+    if (n_date != obs_state[i]):
+        print('warning: obs_date and obs_state inconsistent in line %d '%(i+2))
+        print(t[i])
 
 colors = cm.rainbow(np.linspace(0, 1, len(name2)))
 
@@ -100,6 +111,8 @@ for j in range(len(name2)):
     obs = obs_state[idx]
     if (nx == 'JiangDengKai'):
         k = j
+        #k = (name1 == nx)
+        #k = np.nonzero(k)[0][0]
         continue
     for i in range(len(cen_ra)):
         x0, y0 = footprint(cen_ra[i], cen_dec[i])
@@ -117,15 +130,16 @@ for j in range(len(name2)):
         else:
             ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
 
+# plate "JiangDengKai" overlaps with others:
 nx = name2[k]
 idx = (name1 == nx)
 cen_ra  = c1[idx]
 cen_dec = c2[idx]
 x0, y0 = footprint(cen_ra, cen_dec)
 x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
-if obs_state[k] == 0:
+if obs_state[idx] == 0:
     linestyle = ':'
-    linewidth = 0.5
+    linewidth = 1.0
     alpha = 0.5
 else:
     linestyle = '-'
