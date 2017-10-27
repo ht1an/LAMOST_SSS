@@ -4,7 +4,7 @@ import sys
 sys.path.append('../../util/')
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import IO_InpCat as II
 import csv
 from astropy.io import fits
@@ -79,6 +79,9 @@ idx = (g1 >= 10.0) * (g1 <= 15.0)
 t1_sub = t1_sub[idx]
 
 # dealing with supplementary sources:
+g1_supplement = t1_supplement['phot_g_mean_mag']
+idx = (g1_supplement >= 10.0) * (g1_supplement <= 15.0)
+t1_supplement = t1_supplement[idx]
 sid1 = t1_sub['source_id']
 sid1_supplement = t1_supplement['gaia_id']
 #sid1_fmt = np.array(sid1, dtype='S19')
