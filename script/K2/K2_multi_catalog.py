@@ -61,7 +61,7 @@ t2 = h2[1].data
 
 # choose k 'best' center stars from tycho-catalog
 k = 6
-x = choose_center.choose_center2(ra1s, dec1s, ftycho, k)
+x = choose_center.choose_center(ra1s, dec1s, ftycho, k)
 #(cen_ra, cen_dec, idx, HIP, m) = choose_center.choose_center(ra1s, dec1s, ftycho)
 
 for i in range(k):
