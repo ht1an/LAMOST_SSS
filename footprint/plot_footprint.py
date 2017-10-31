@@ -117,6 +117,18 @@ for j in range(len(name2)):
     for i in range(len(cen_ra)):
         x0, y0 = footprint(cen_ra[i], cen_dec[i])
         x, y = aitoff_projection(np.deg2rad(x0), np.deg2rad(y0))
+        # if the field across ra=0, dx > 0 should be found
+        dx = np.array([x0[ii+1] - x0[ii] for ii in range(len(x0)-1)])
+        dx = np.abs(dx)
+        if np.max(x0) - np.min(x0) > 180:
+            idx = (dx > 1)
+            sec = np.nonzero(idx)[0]
+            sec = sec + 1
+            ns  = len(sec)
+        else:
+            sec = np.array([], dtype=int)
+            ns  = 0
+        sec = np.hstack([0, sec, len(x)])
         if obs[i] == 0:
             linestyle = ':'
             linewidth = 0.5
@@ -126,9 +138,21 @@ for j in range(len(name2)):
             linewidth = 1.5
             alpha = 1
         if i == 0:
-            ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha, label=nx)
+            a = x[sec[0]:sec[1]]
+            b = y[sec[0]:sec[1]]
+            #ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha, label=nx)
+            ax.plot(a, b, c=colors[j], ls='-', lw=linewidth, alpha=alpha, label=nx)
+            if ns > 0:
+                for ii in np.arange(1,ns+1):
+                    a = x[sec[ii]:sec[ii+1]]
+                    b = y[sec[ii]:sec[ii+1]]
+                    ax.plot(a, b, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
         else:
-            ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
+            #ax.plot(x, y, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
+            for ii in range(ns+1):
+                a = x[sec[ii]:sec[ii+1]]
+                b = y[sec[ii]:sec[ii+1]]
+                ax.plot(a, b, c=colors[j], ls='-', lw=linewidth, alpha=alpha)
 
 # plate "JiangDengKai" overlaps with others:
 nx = name2[k]
