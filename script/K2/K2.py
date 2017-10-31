@@ -7,26 +7,72 @@ import sys
 sys.path.append('../../util/')
 import gcirc
 import IO_InpCat as II
+import choose_center
 
 # ----------------------------------------------------------------
 # input catalogue
 #finput = 'K2_00_plate.csv'
 #finput = 'K2_01_plate.csv'
-#finput = 'K2_04_plate.csv'
+finput = 'K2_04_plate.csv'
 #finput = 'K2_05_plate.csv'
 #finput = 'K2_06_plate.csv'
-finput = 'K2_08_plate.csv'
+#finput = 'K2_08_plate.csv'
 #finput = 'K2_13_plate.csv'
 #finput = 'K2_14_plate.csv'
 #finput = 'K2_16_plate.csv'
+finput_supplement = 'K2_04_supplement.txt'
 fgaia  = '../../../catalogue/gaia/base/base.fits'
 #fgaia  = 'gaia2.fits'
+ftycho = '../../../lamost_mrs/bt.fits'
+
+# data format
+dt = np.dtype([('OBJID', 'S19'), ('RADEG', float), ('DECDEG', float), ('MAG0', float), ('PRI', float)])
+dts = np.dtype([('OBJID', 'S19'), ('RAh', float), ('RAm', float), ('RAs', float), ('DECd', float), ('DECm', float), ('DECs', float), ('MAG0', float), ('Comments', 'S19')])
+# --------------------------------------------------
+# read supplement catalog 
+
+t1s = np.genfromtxt(finput_supplement, dtype=dts, names=True)
+#sid1s = t1s['Epic_Num']
+#sid1 = t1_sub['OBJID']
+#id1 = np.in1d(sid1, sid1s, invert=True)
+#t1_sub = t1_sub[id1]
+
+ra  = (t1s['RAh'] + t1s['RAm']/60.0 + t1s['RAs']/3600.0) * 15.0
+dec = t1s['DECd'] + t1s['DECm']/60.0 + t1s['DECs']/3600.0
+g1s = t1s['Mag']
+idx = (g1s >= 10.0) * (g1s <= 15.0)
+t1s = t1s[idx]
+ra  = ra[idx]
+dec = dec[idx]
+
+# choose 'best' center star from tycho-catalog
+(cen_ra, cen_dec, idx, HIP, m) = choose_center.choose_center(ra, dec, ftycho)
+print(cen_ra, cen_dec)
+print(HIP, m)
+
+t1s_sub = t1s[idx]
+ra1s = ra[idx]
+dec1s = dec[idx]
+sid1s = t1s_sub['Epic_Num']
+g1s = t1s_sub['Mag']
+comments = t1s_sub['Comments']
+pri = np.array([1]*m)
+idx = (comments == 'RRLyr')
+pri[idx] += 1
+print(len(t1s_sub))
+t1snew = np.empty(m, dtype=dt)
+t1snew['OBJID'] = sid1s
+t1snew['RADEG'] = ra1s
+t1snew['DECDEG'] = dec1s
+t1snew['MAG0'] = g1s
+t1snew['PRI'] = pri
 
 # --------------------------------------------------
 # read input catalog 
-dt = np.dtype([('OBJID', 'S19'), ('RADEG', float), ('DECDEG', float), ('MAG0', float), ('PRI', float)])
-
 t1 = np.genfromtxt(finput, dtype=dt, delimiter=',', names=True)
+sid1 = t1['OBJID']
+id1 = np.in1d(sid1, sid1s, invert=True)
+t1 = t1[id1]
 ra  = t1['RADEG']
 dec = t1['DECDEG']
 
@@ -41,13 +87,13 @@ dec = t1['DECDEG']
 
 #center = np.array([ 14.58106,  6.84431]) # plate08, HIP4559
 #center = np.array([ 16.45516,  4.90837]) # plate08, HIP5141
-center = np.array([ 18.12769,  2.47157]) # plate08, HIP5646
+#center = np.array([ 18.12769,  2.47157]) # plate08, HIP5646
 
 #center = np.array([ 74.02765, 22.57655]) # plate13, HIP22935
 #center = np.array([158.75899,  8.65043]) # plate13, HIP51802
 #center = np.array([134.39545, 16.23365]) # plate13, HIP44000
-cen_ra = center[0]
-cen_dec = center[1]
+#cen_ra = center[0]
+#cen_dec = center[1]
 
 # max radius of the observed region
 max_radius = 2.5
@@ -89,6 +135,9 @@ d = gcirc.gcirc(ra_sub1, dec_sub1, cen_ra, cen_dec, u=1)
 id2 = (d <= max_radius)
 
 t1_sub = t1[id1][id2]
+
+t1_sub['PRI'] += 2
+t1_sub = np.hstack([t1snew, t1_sub])
 
 # --------------------------------------------------
 # read catalog from gaia
@@ -134,10 +183,10 @@ t2_sub = t2_sub[id3]
 # select g-mag range [10, 15]
 g1 = t1_sub['MAG0']
 g2 = t2_sub['phot_g_mean_mag']
-idx = (g1 >= 9.0) * (g1 <= 13.5)
+idx = (g1 >= 10.0) * (g1 <= 15.0)
 g1 = g1[idx]
 t1_sub = t1_sub[idx]
-idx = (g2 >= 9.0) * (g2 <= 13.5)
+idx = (g2 >= 10.0) * (g2 <= 15.0)
 g2 = g2[idx]
 t2_sub = t2_sub[idx]
 print('star number: ',len(t1_sub), len(t2_sub))
