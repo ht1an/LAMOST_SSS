@@ -6,54 +6,33 @@ from astropy import units
 import sys
 sys.path.append('../../util/')
 import gcirc
-import IO_InpCat as II
+import IO_InpCat_3 as II
 import choose_center
-
+import csv
+import sys
 # ----------------------------------------------------------------
 # input catalogue
-#finput = 'K2_00_plate.csv'
-#finput = 'K2_01_plate.csv'
+dpath = '/Users/htian/Documents/GitHub/LAMOST_SSS/data/FuJN/'
+# finput = 'K2_00_plate.csv'
+# finput = 'K2_01_plate.csv'
 #finput = 'K2_04_plate.csv'
 # finput = 'K2_05_plate.csv'
-#finput = 'K2_06_plate.csv'
+# finput = 'K2_06_plate.csv'
 #finput = 'K2_08_plate.csv'
 #finput = 'K2_13_plate.csv'
 #finput = 'K2_14_plate.csv'
 finput = 'K2_16_plate.csv'
-#finput_supplement = 'K2_00_supplement.txt'
-#finput_supplement = 'K2_04_supplement.txt'
-# finput_supplement = 'K2_05_supplement.txt'
-#finput_supplement = 'K2_13_supplement.txt'
-# finput_supplement = 'K2_16_supplement.txt'
-fgaia  = '/Users/tian/Documents/work/data/Gaia/base.fits'
+fgaia  = '/Users/htian/Documents/work/data/Gaia/base.fits'
 #fgaia  = 'gaia2.fits'
-ftycho = '/Users/tian/Documents/work/data/Gaia/bt.fits'
+ftycho = '/Users/htian/Documents/work/data/Gaia/bt.fits'
 
 # data format
 dt = np.dtype([('OBJID', 'S19'), ('RADEG', float), ('DECDEG', float), ('MAG0', float), ('PRI', float)])
-dts = np.dtype([('OBJID', 'S19'), ('RAh', float), ('RAm', float), ('RAs', float), ('DECd', float), ('DECm', float), ('DECs', float), ('MAG0', float), ('Comments', 'S19')])
-# --------------------------------------------------
-# read supplement catalog 
-
-t1s = np.genfromtxt(finput_supplement, dtype=dts, names=True)
-sid1s = t1s['Epic_Num']
-
-ra  = (t1s['RAh'] + t1s['RAm']/60.0 + t1s['RAs']/3600.0) * 15.0
-dec = t1s['DECd'] + t1s['DECm']/60.0 + t1s['DECs']/3600.0
-g1s = t1s['Mag']
-idx = (g1s >= 10.0) * (g1s <= 15.0)
-t1s = t1s[idx]
-ra1s  = ra[idx]
-dec1s = dec[idx]
-
 # --------------------------------------------------
 # read input catalog 
-t1 = np.genfromtxt(finput, dtype=dt, delimiter=',', names=True)
-# remove duplicate
-sid1s = t1s['Epic_Num']
-sid1 = t1['OBJID']
-id1 = np.in1d(sid1, sid1s, invert=True)
-t1 = t1[id1]
+t1 = np.genfromtxt(dpath+finput, dtype=dt, delimiter=',', names=True)
+ra1 = t1['RADEG']
+dec1= t1['DECDEG']
 
 # --------------------------------------------------
 # read catalog from gaia
@@ -62,8 +41,8 @@ t2 = h2[1].data
 
 # choose k 'best' center stars from tycho-catalog
 k = 6
-x = choose_center.choose_center(ra1s, dec1s, ftycho, k)
-#(cen_ra, cen_dec, idx, HIP, m) = choose_center.choose_center(ra1s, dec1s, ftycho)
+x = choose_center.choose_center(ra1, dec1, ftycho, k)
+# (cen_ra, cen_dec, idx, HIP, m) = choose_center.choose_center(ra1s, dec1s, ftycho)
 
 for i in range(k):
     cen_ra, cen_dec, idx, HIP, m = x[i]
@@ -71,27 +50,16 @@ for i in range(k):
     print(HIP, m)
     center_file = 'cen_'+str(i)+'.txt'
     catalog_file = 'CATALOG_'+str(i)+'.csv'
-    fid = open(center_file,'w')
-    print>>fid,cen_ra,cen_dec,'HIP'+str(HIP),m
-    fid.close()
+    # fid = open(center_file,'w')
+    # print>>fid,cen_ra,cen_dec,'HIP'+str(HIP),m
+    # fid.close()
+    csvfile = open(center_file,'w')
+    fid = csv.writer(csvfile)
+    fid.writerow([cen_ra,cen_dec,'HIP'+str(HIP),m])
+    csvfile.close()
 
-    t1s_sub = t1s[idx]
-    ra1s_sub  = ra1s[idx]
-    dec1s_sub = dec1s[idx]
-    sid1s_sub = t1s_sub['Epic_Num']
-    g1s_sub = t1s_sub['Mag']
-    comments = t1s_sub['Comments']
     pri = np.array([1]*m)
-    idx = (comments == 'RRLyr')
-    pri[idx] += 1
-    print(len(t1s_sub))
-    t1snew = np.empty(m, dtype=dt)
-    t1snew['OBJID'] = sid1s_sub
-    t1snew['RADEG'] = ra1s_sub
-    t1snew['DECDEG'] = dec1s_sub
-    t1snew['MAG0'] = g1s_sub
-    t1snew['PRI'] = pri
-
+    # idx = (comments == 'RRLyr')
     ra  = t1['RADEG']
     dec = t1['DECDEG']
 
@@ -137,7 +105,7 @@ for i in range(k):
     t1_sub = t1[id1][id2]
 
     t1_sub['PRI'] += 2
-    t1_sub = np.hstack([t1snew, t1_sub])
+    # t1_sub = np.hstack([t1snew, t1_sub])
 
     # --------------------------------------------------
     # gaia catalog
@@ -236,4 +204,4 @@ for i in range(k):
     pri = pri.astype(int)
 
     # output the catalog for lamost-sss
-    II.Inp_cat_output(OBJID=objid, RADEG=ra, DECDEG=dec, MAG0=g_mag, PRI=pri, fn=catalog_file)
+    II.Inp_cat_output(OBJID=objid.astype(str), RADEG=ra, DECDEG=dec, MAG0=g_mag, PRI=pri, fn=catalog_file)
